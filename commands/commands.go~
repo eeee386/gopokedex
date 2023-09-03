@@ -1,0 +1,48 @@
+package commands
+
+import (
+	"fmt"
+	"errors"
+)
+
+type CliCommand struct {
+	Name        string
+	Description string
+	Callback    func() error
+}
+
+var cliMap = make(map[string]CliCommand)
+
+func commandHelp() error {
+	if cliMap == nil {
+		return errors.New("No commands to show")
+	}
+	fmt.Println("Welcome to Pokedex!")
+	fmt.Print("Usage:\n\n")
+	for k, v := range cliMap {
+		fmt.Printf("%s: %s\n", k, v.Description)
+	}
+	fmt.Print("\n")
+	return nil
+}
+
+func commandExit() error {
+	fmt.Println("Exiting pokedex")
+	return nil
+}
+
+func GetCLICommands() map[string]CliCommand {
+	cliMap = map[string]CliCommand{
+		"help": {
+			Name:        "help",
+			Description: "Display help message",
+			Callback:    commandHelp,
+		},
+		"exit": {
+			Name:        "exit",
+			Description: "Exit the Pokedex",
+			Callback:    commandExit,
+		},
+	}
+	return cliMap
+}
