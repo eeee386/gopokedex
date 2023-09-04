@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"errors"
 	"GoPokedex/service"
+	"GoPokedex/pokecache"
+	"time"
 )
 
 type CliCommand struct {
@@ -11,6 +13,8 @@ type CliCommand struct {
 	Description string
 	Callback    func() error
 }
+
+var cache = pokecache.NewCache(300 * time.Second)
 
 var cliMap = make(map[string]CliCommand)
 
@@ -41,7 +45,7 @@ func commandMap() error {
 		fmt.Println("No more available locations to show")
 		return nil
 	}
-	var locationObject = service.GetLocation(nextLocationUrl)
+  locationObject := service.GetLocation(nextLocationUrl)
 	for _,l := range locationObject.Results {
 		fmt.Println(l.Name)
 	}
