@@ -4,21 +4,17 @@ import (
 	"fmt"
 	"errors"
 	"GoPokedex/service"
-	"GoPokedex/pokecache"
-	"time"
 )
 
 type CliCommand struct {
 	Name        string
 	Description string
-	Callback    func() error
+	Callback    func(params ...string) error
 }
-
-var cache = pokecache.NewCache(300 * time.Second)
 
 var cliMap = make(map[string]CliCommand)
 
-func commandHelp() error {
+func commandHelp(params ...string) error {
 	if cliMap == nil {
 		return errors.New("No commands to show")
 	}
@@ -31,7 +27,7 @@ func commandHelp() error {
 	return nil
 }
 
-func commandExit() error {
+func commandExit(params ...string) error {
 	fmt.Println("Exiting pokedex")
 	return nil
 }
@@ -40,7 +36,7 @@ func commandExit() error {
 var prevLocationsUrl string
 var nextLocationUrl = "https://pokeapi.co/api/v2/location-area"
 
-func commandMap() error {
+func commandMap(params ...string) error {
 	if(nextLocationUrl == "") {
 		fmt.Println("No more available locations to show")
 		return nil
@@ -54,8 +50,7 @@ func commandMap() error {
 	return nil
 }
 
-func commandMapB () error {
-	fmt.Println("prev: ", prevLocationsUrl == "")
+func commandMapB (params ...string) error {
 	if(prevLocationsUrl == "") {
 		return errors.New("There no previous location records")
 	}
@@ -65,6 +60,15 @@ func commandMapB () error {
 	}
 	prevLocationsUrl = locationsObject.Previous
 	nextLocationUrl = locationsObject.Next
+	return nil
+}
+
+func commandExplore(params ...string) error {
+	var locationAreaObject = service.GetLocationArea(params[0])
+	var pokemons = locationAreaObject.PokemonEncounters
+	for _, v := range(pokemons) {
+		fmt.Println(v.Pokemon.Name)
+	}
 	return nil
 }
 
@@ -89,6 +93,11 @@ func GetCLICommands() map[string]CliCommand {
 			Name: "mapb",
 			Description: "Show the previous 20 locations",
 			Callback: commandMapB,
+		},
+		"explore": {
+			Name: "explore",
+			Description: "Show pokemons in an area",
+			Callback: commandExplore,
 		},
 	}
 	return cliMap

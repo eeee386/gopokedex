@@ -42,9 +42,12 @@ func (c Cache) readLoop(interval time.Duration) {
 	}()
 }
 
-func (c Cache) Add(key string, entry CacheEntry) {
+func (c Cache) Add(key string, entry []byte) {
 	c.mutex.Lock()
-	c.entries[key] = entry
+	newEntry := CacheEntry{}
+	newEntry.createdAt = time.Now()
+  newEntry.val = entry
+	c.entries[key] = newEntry
 	c.mutex.Unlock()
 }
 
