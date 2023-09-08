@@ -1,9 +1,10 @@
 package commands
 
 import (
-	"fmt"
-	"errors"
 	"GoPokedex/service"
+	"errors"
+	"fmt"
+	"math/rand"
 )
 
 type CliCommand struct {
@@ -72,6 +73,27 @@ func commandExplore(params ...string) error {
 	return nil
 }
 
+var pokedex = make(map[string]service.PokemonResponseObject)
+
+func commandCatch(params ...string) error {
+	var pokemonObject = service.GetPokemon(params[0])
+	pokemon, ok := pokedex[pokemonObject.Name]
+	if(ok) {
+		fmt.Printf("%s is already in the pokedex\n", pokemon.Name)
+		return nil
+	}
+	fmt.Printf("Throwing a pokeball at %s...\n", pokemonObject.Name)
+	catchNumber := rand.Intn(1000)
+	if catchNumber >= pokemonObject.BaseExperience {
+		pokedex[pokemonObject.Name] = pokemonObject
+		fmt.Printf("%s was caught!\n", pokemonObject.Name)
+	} else {
+		fmt.Printf("%s escaped!\n", pokemonObject.Name)
+	}
+	return nil
+	
+}
+
 func GetCLICommands() map[string]CliCommand {
 	cliMap = map[string]CliCommand{
 		"help": {
@@ -98,6 +120,11 @@ func GetCLICommands() map[string]CliCommand {
 			Name: "explore",
 			Description: "Show pokemons in an area",
 			Callback: commandExplore,
+		},
+		"catch": {
+			Name: "catch",
+			Description: "Catch a pokemon to your pokedex",
+			Callback: commandCatch,
 		},
 	}
 	return cliMap

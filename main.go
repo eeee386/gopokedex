@@ -24,7 +24,6 @@ func main() {
 			fmt.Printf(err.Error())
 			break
 		} else {
-			fmt.Println(splitText[0])
 			command ,e := cliMap[splitText[0]]
 			if e {
 				errc := command.Callback(splitText[1:]...)
